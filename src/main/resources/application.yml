@@ -1,14 +1,27 @@
-feign:
-  circuitbreaker:
-    enabled: true
+spring:
+  application:
+    name: patient-service
 
 resilience4j:
   circuitbreaker:
     instances:
-      DEVICE-SERVICE:
-        registerHealthIndicator: true
-        slidingWindowSize: 5
-        minimumNumberOfCalls: 2
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 2
+      # Tên của Circuit Breaker. Bạn sẽ dùng tên này trong annotation @CircuitBreaker
+      deviceService:
+        failureRateThreshold: 50 # Tỷ lệ lỗi cho phép (50%)
+        waitDurationInOpenState: 5s # Thời gian Circuit ở trạng thái OPEN
+        permittedNumberOfCallsInHalfOpenState: 3 # Số lượng cuộc gọi cho phép ở trạng thái HALF_OPEN
+        slidingWindowType: COUNT_BASED # Loại cửa sổ trượt (COUNT_BASED hoặc TIME_BASED)
+        slidingWindowSize: 10 # Kích thước cửa sổ trượt (10 yêu cầu)
+        minimumNumberOfCalls: 5 # Số lượng cuộc gọi tối thiểu trước khi tính toán tỷ lệ lỗi
+        automaticTransitionFromOpenToHalfOpenEnabled: true # Tự động chuyển từ Open sang Half-Open
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+  health:
+    circuitbreakers:
+      enabled: true
+server:
+  port: 8080
